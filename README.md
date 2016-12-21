@@ -2,6 +2,29 @@
 
 Add opening hours to a data object. I suggest adding [silverstripe-australia/addressable](https://github.com/silverstripe-australia/silverstripe-addressable) to add opening hours and address data to a Store site. In the future i would suggest using [bramdeleeuw/silverstripe-schema](https://github.com/TheBnl/silverstripe-schema) to add schema data, like store information, to your site but it's still a work in progress. 
 
+To add the opening hours, simply extens on the object that you want to use them on.
+```yaml
+YourObject
+  extensions:
+    - OpeningHours
+```
+
+The object comes packed with some methods you can use to display the opening hours with:
+```php
+// Object methods
+ 
+// Return the short localized version for the current day (in the loop)
+$openingHour->getShortDay()
+ 
+// Return the short localized version for the current day (in the loop)
+$openingHour->getFullDay()
+ 
+// Static methods
+ 
+// Returns if the given day is open or not, nice to display a 'store is open' message.
+OpeningHour::is_open(OpeningHour $day)
+```
+
 ## License
 
 Copyright (c) 2016, Bram de Leeuw
