@@ -1,0 +1,22 @@
+{
+  "name": "bramdeleeuw/silverstripe-openinghours",
+  "description": "Add opening hours to a DataObject",
+  "type": "silverstripe-module",
+  "keywords": ["silverstripe", "slice", "page", "layout"],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Bram de Leeuw",
+      "email": "bram-de-leeuw@hotmai.com"
+    }
+  ],
+  "require": {
+    "silverstripe/framework": ">=3.1",
+    "silverstripe/cms": ">=3.1",
+    "silverstripe-australia/gridfieldextensions": "*",
+    "composer/installers": "*"
+  },
+  "extra": {
+    "installer-name": "openinghours"
+  }
+}

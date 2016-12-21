@@ -1,0 +1,4 @@
+---
+Name: OpeningHours
+After: 'framework/*','cms/*'
+---
