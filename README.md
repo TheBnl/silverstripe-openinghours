@@ -14,15 +14,15 @@ The object comes packed with some methods you can use to display the opening hou
 // Object methods
  
 // Return the short localized version for the current day (in the loop)
-$openingHour->getShortDay()
+$openingHour->getShortDay();
  
 // Return the short localized version for the current day (in the loop)
-$openingHour->getFullDay()
+$openingHour->getFullDay();
  
 // Static methods
  
 // Returns if the given day is open or not, nice to display a 'store is open' message.
-OpeningHour::is_open(OpeningHour $day)
+OpeningHour::is_open(OpeningHour $day);
 ```
 
 ## License
