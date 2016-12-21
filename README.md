@@ -4,7 +4,7 @@ Add opening hours to a data object. I suggest adding [silverstripe-australia/add
 
 To add the opening hours, simply extens on the object that you want to use them on.
 ```yaml
-YourObject
+YourObject:
   extensions:
     - OpeningHours
 ```
