@@ -99,7 +99,7 @@ class OpeningHour extends DataObject {
      */
     public function getShortDay() {
         $day = $this->Day;
-        return strftime('%a', strtotime($day));
+        return ucfirst(strftime('%a', strtotime($day)));
     }
 
 
@@ -110,7 +110,7 @@ class OpeningHour extends DataObject {
      */
     public function getFullDay() {
         $day = $this->Day;
-        return strftime('%A', strtotime($day));
+        return ucfirst(strftime('%A', strtotime($day)));
     }
 
 
