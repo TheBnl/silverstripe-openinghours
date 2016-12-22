@@ -21,6 +21,8 @@ class OpeningHour extends DataObject {
 
     const MIDNIGHT_THRESHOLD = 5;
 
+    const DAYS_AS_RANGE = 2;
+
     private static $db = array(
         'Title' => 'Varchar(9)',
         'Day' => 'Enum("Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday", "Monday")',
@@ -35,16 +37,10 @@ class OpeningHour extends DataObject {
         'Parent' => 'DataObject'
     );
 
-    private static $has_many = array();
-    private static $many_many = array();
-
     private static $defaults = array(
         'From' => '09:00:00',
         'Till' => '22:00:00'
     );
-
-    private static $belongs_many_many = array();
-    private static $searchable_fields = array();
 
     private static $summary_fields = array(
         'getFullDay' => 'Day',
@@ -52,7 +48,8 @@ class OpeningHour extends DataObject {
         'Till' => 'Till'
     );
 
-    private static $translate = array();
+    protected $concatenatedDays;
+
 
     public function getCMSFields() {
         $fields = new FieldList(new TabSet('Root', $mainTab = new Tab('Main')));
@@ -78,7 +75,7 @@ class OpeningHour extends DataObject {
      */
     protected function onBeforeWrite()
     {
-        $this->setField('Title', $this->getField('Day'));
+        $this->setField('Title', $this->Day);
         $this->setField('Sort', $this->sortVal());
         parent::onBeforeWrite();
     }
@@ -90,7 +87,7 @@ class OpeningHour extends DataObject {
      * @return false|string
      */
     private function sortVal() {
-        $day = $this->getField('Day');
+        $day = $this->Day;
         return date('N', strtotime($day));
     }
 
@@ -101,7 +98,7 @@ class OpeningHour extends DataObject {
      * @return string
      */
     public function getShortDay() {
-        $day = $this->getField('Day');
+        $day = $this->Day;
         return strftime('%a', strtotime($day));
     }
 
@@ -112,8 +109,77 @@ class OpeningHour extends DataObject {
      * @return string
      */
     public function getFullDay() {
-        $day = $this->getField('Day');
+        $day = $this->Day;
         return strftime('%A', strtotime($day));
+    }
+
+
+    /**
+     * Return the days store as a concatenated day range or as the short day
+     *
+     * @return string
+     */
+    public function getConcatenatedDays() {
+        if (isset($this->concatenatedDays)) {
+            return self::concat_days(explode(', ', $this->concatenatedDays));
+        } else {
+            return $this->getShortDay();
+        }
+    }
+
+
+    /**
+     * Add a day to the concat days list
+     *
+     * @param $day
+     */
+    public function addDay($day) {
+        if (!isset($this->concatenatedDays)) $this->concatenatedDays = $this->getShortDay();
+        $this->concatenatedDays .= ", $day";
+    }
+
+
+    /**
+     * Concat the days to a range
+     *
+     * @param array $days
+     * @return null|string
+     */
+    private static function concat_days(array $days = []) {
+        if (count($days) > self::DAYS_AS_RANGE) {
+            $last = end($days);
+            $rangeDelimiter = _t('OpeningHours.RANGE_DELIMITER', '–');
+            return "{$days[0]} $rangeDelimiter {$last}";
+        } else {
+            return implode(', ', $days);
+        }
+    }
+
+
+    /**
+     * Check if the opening hours fall between the given threshold
+     *
+     * @return bool
+     */
+    public function IsOpenNow() {
+        if (!$this->IsClosed()) {
+            $from = $this->From;
+            $till = self::after_midnight($this->Till);
+            $now = self::after_midnight(date('G:i:s', time()));
+            return (bool) ($now < $till) && ($now > $from);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns if the shop is open on the current day
+     *
+     * @return bool
+     */
+    public function IsClosed() {
+        return (bool) ($this->From === $this->Till);
     }
 
 
@@ -128,20 +194,6 @@ class OpeningHour extends DataObject {
         } else {
             return null;
         }
-    }
-
-
-    /**
-     * Check if the opening hours fall between the given threshold
-     *
-     * @param OpeningHour $day
-     * @return bool
-     */
-    public static function is_open(OpeningHour $day) {
-        $from = $day->getField('From');
-        $till = self::after_midnight($day->getField('Till'));
-        $now = self::after_midnight(date('G:i:s', time()));
-        return ($now < $till) && ($now > $from);
     }
 
 

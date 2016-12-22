@@ -25,7 +25,6 @@ class GridFieldConfig_OpeningHours extends GridFieldConfig
         $this->addComponent(new GridFieldToolbarHeader());
         $this->addComponent(new GridFieldTitleHeader());
         $this->addComponent(new GridFieldEditableColumns());
-        $this->addComponent(new GridFieldOrderableRows($sortField));
         if ($object->count() < 7)  $this->addComponent(new GridFieldAddNewInlineButton("toolbar-header-right"));
     }
 }

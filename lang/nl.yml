@@ -1,0 +1,7 @@
+en:
+  OpeningHours:
+    OPEN: 'Open'
+    CLOSED: 'Gesloten'
+    OPEN_NOW: 'We zijn open'
+    CLOSED_NOW: 'We zijn gesloten'
+    RANGE_DELIMITER: 't/m'
