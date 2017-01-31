@@ -1,23 +1,27 @@
 <?php
-/**
- * OpeningHour.php
- *
- * @author Bram de Leeuw
- * Date: 23/11/16
- */
 
+namespace Broarm\Silverstripe\OpeningHours;
+
+use DataObject;
+use FieldList;
+use ReadonlyField;
+use Tab;
+use TabSet;
+use TimeField;
 
 /**
- * OpeningHour
+ * Class OpeningHour
+ * @package Broarm\Silverstripe\OpeningHours
  *
  * @property string Title
  * @property string Day
- * @property Time From
- * @property Time Till
+ * @property \Time From
+ * @property \Time Till
  *
  * @method DataObject Parent
  */
-class OpeningHour extends DataObject {
+class OpeningHour extends DataObject
+{
 
     const MIDNIGHT_THRESHOLD = 5;
 
@@ -51,7 +55,8 @@ class OpeningHour extends DataObject {
     protected $concatenatedDays;
 
 
-    public function getCMSFields() {
+    public function getCMSFields()
+    {
         $fields = new FieldList(new TabSet('Root', $mainTab = new Tab('Main')));
 
         $day = $this->Day;
@@ -86,7 +91,8 @@ class OpeningHour extends DataObject {
      *
      * @return false|string
      */
-    private function sortVal() {
+    private function sortVal()
+    {
         $day = $this->Day;
         return date('N', strtotime($day));
     }
@@ -97,7 +103,8 @@ class OpeningHour extends DataObject {
      *
      * @return string
      */
-    public function getShortDay() {
+    public function getShortDay()
+    {
         $day = $this->Day;
         return ucfirst(strftime('%a', strtotime($day)));
     }
@@ -108,7 +115,8 @@ class OpeningHour extends DataObject {
      *
      * @return string
      */
-    public function getFullDay() {
+    public function getFullDay()
+    {
         $day = $this->Day;
         return ucfirst(strftime('%A', strtotime($day)));
     }
@@ -119,7 +127,8 @@ class OpeningHour extends DataObject {
      *
      * @return string
      */
-    public function getConcatenatedDays() {
+    public function getConcatenatedDays()
+    {
         if (isset($this->concatenatedDays)) {
             return self::concat_days(explode(', ', $this->concatenatedDays));
         } else {
@@ -133,8 +142,11 @@ class OpeningHour extends DataObject {
      *
      * @param $day
      */
-    public function addDay($day) {
-        if (!isset($this->concatenatedDays)) $this->concatenatedDays = $this->getShortDay();
+    public function addDay($day)
+    {
+        if (!isset($this->concatenatedDays)) {
+            $this->concatenatedDays = $this->getShortDay();
+        }
         $this->concatenatedDays .= ", $day";
     }
 
@@ -145,7 +157,8 @@ class OpeningHour extends DataObject {
      * @param array $days
      * @return null|string
      */
-    private static function concat_days(array $days = []) {
+    private static function concat_days(array $days = [])
+    {
         if (count($days) > self::DAYS_AS_RANGE) {
             $last = end($days);
             $rangeDelimiter = _t('OpeningHours.RANGE_DELIMITER', '–');
@@ -161,12 +174,13 @@ class OpeningHour extends DataObject {
      *
      * @return bool
      */
-    public function IsOpenNow() {
+    public function IsOpenNow()
+    {
         if (!$this->IsClosed()) {
             $from = $this->From;
             $till = self::after_midnight($this->Till);
             $now = self::after_midnight(date('G:i:s', time()));
-            return (bool) ($now < $till) && ($now > $from);
+            return (bool)($now < $till) && ($now > $from);
         }
 
         return false;
@@ -178,8 +192,9 @@ class OpeningHour extends DataObject {
      *
      * @return bool
      */
-    public function IsClosed() {
-        return (bool) ($this->From === $this->Till);
+    public function IsClosed()
+    {
+        return (bool)($this->From === $this->Till);
     }
 
 
@@ -188,7 +203,8 @@ class OpeningHour extends DataObject {
      *
      * @return OpeningHour|DataObject|null
      */
-    public static function get_today() {
+    public static function get_today()
+    {
         if ($today = self::get()->find('Day', date('l', time()))) {
             return $today;
         } else {
@@ -203,28 +219,41 @@ class OpeningHour extends DataObject {
      * @param $time
      * @return mixed
      */
-    private static function after_midnight($time) {
+    private static function after_midnight($time)
+    {
         return $time < self::MIDNIGHT_THRESHOLD ? ($time + 24) : $time;
     }
 
 
-    public function canView($member = null) {
-        if (!$this->Parent()) return false;
+    public function canView($member = null)
+    {
+        if (!$this->Parent()) {
+            return false;
+        }
         return $this->Parent()->canView($member);
     }
 
-    public function canEdit($member = null) {
-        if (!$this->Parent()) return false;
+    public function canEdit($member = null)
+    {
+        if (!$this->Parent()) {
+            return false;
+        }
         return $this->Parent()->canEdit($member);
     }
 
-    public function canDelete($member = null) {
-        if (!$this->Parent()) return false;
+    public function canDelete($member = null)
+    {
+        if (!$this->Parent()) {
+            return false;
+        }
         return $this->Parent()->canDelete($member);
     }
 
-    public function canCreate($member = null) {
-        if (!$this->Parent()) return false;
+    public function canCreate($member = null)
+    {
+        if (!$this->Parent()) {
+            return false;
+        }
         return $this->Parent()->canCreate($member);
     }
 }

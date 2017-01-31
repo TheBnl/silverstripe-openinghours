@@ -1,31 +1,36 @@
 <?php
+
+namespace Broarm\Silverstripe\OpeningHours;
+
+use ArrayList;
+use DataExtension;
+use DataObject;
+use FieldList;
+use GridField;
+use LiteralField;
+
 /**
- * OpeningHours.php
- *
- * @author Bram de Leeuw
- * Date: 21/12/16
- */
- 
- 
-/**
- * OpeningHours
+ * Class OpeningHours
+ * @package Broarm\Silverstripe\OpeningHours
  *
  * @property OpeningHours|DataObject owner
- *
- * @method HasManyList OpeningHours
+ * @method \HasManyList OpeningHours
  */
-class OpeningHours extends DataExtension {
+class OpeningHours extends DataExtension
+{
 
     private static $has_many = array(
-        'OpeningHours' => 'OpeningHour'
+        'OpeningHours' => 'Broarm\Silverstripe\OpeningHours\OpeningHour'
     );
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(FieldList $fields)
+    {
         if ($this->owner->exists()) {
             $config = new GridFieldConfig_OpeningHours($this->owner->OpeningHours());
             $openingHours = new GridField('OpeningHours', 'OpeningHours', $this->owner->OpeningHours(), $config);
         } else {
-            $openingHours = new LiteralField('Notice', "<p class='message notice'>The object must be saved before opening hours can be added</p>");
+            $openingHours = new LiteralField('Notice',
+                "<p class='message notice'>The object must be saved before opening hours can be added</p>");
         }
 
         $fields->addFieldsToTab('Root.OpeningHours', array($openingHours));
@@ -34,7 +39,9 @@ class OpeningHours extends DataExtension {
 
     public function onAfterWrite()
     {
-        if ($this->owner->OpeningHours()->count() === 0) $this->createOpeningHours();
+        if ($this->owner->OpeningHours()->count() === 0) {
+            $this->createOpeningHours();
+        }
         parent::onAfterWrite();
     }
 
@@ -42,7 +49,8 @@ class OpeningHours extends DataExtension {
     /**
      * Set up the opening hours for each day of the week
      */
-    private function createOpeningHours() {
+    private function createOpeningHours()
+    {
         $days = OpeningHour::singleton()->dbObject('Day')->enumValues();
         foreach ($days as $day) {
             $openingHour = OpeningHour::create();
@@ -55,9 +63,10 @@ class OpeningHours extends DataExtension {
     /**
      * Get the opening hours
      *
-     * @return ViewableData
+     * @return OpeningHour|DataObject|null
      */
-    public function getOpeningHoursToday() {
+    public function getOpeningHoursToday()
+    {
         return OpeningHour::get_today();
     }
 
@@ -96,7 +105,8 @@ class OpeningHours extends DataExtension {
      * @param OpeningHour $b
      * @return bool
      */
-    private static function same_time(OpeningHour $a, OpeningHour $b) {
+    private static function same_time(OpeningHour $a, OpeningHour $b)
+    {
         return $a->Till === $b->Till
             && $a->From === $b->From;
     }
