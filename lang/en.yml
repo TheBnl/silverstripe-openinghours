@@ -5,3 +5,6 @@ en:
     OPEN_NOW: 'We’re open'
     CLOSED_NOW: 'We’re closed'
     RANGE_DELIMITER: '–'
+    Day: 'Day'
+    FROM: 'From'
+    TILL: 'Till'

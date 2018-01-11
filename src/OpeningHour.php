@@ -41,7 +41,7 @@ class OpeningHour extends DataObject
     private static $default_sort = 'Sort ASC';
 
     private static $has_one = [
-        'Parent' => 'DataObject'
+        'Parent' => DataObject::class
     ];
 
     private static $defaults = [
