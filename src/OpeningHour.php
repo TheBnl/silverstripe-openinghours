@@ -33,8 +33,8 @@ class OpeningHour extends DataObject
     private static $db = [
         'Title' => 'Varchar(9)',
         'Day' => 'Enum("Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday", "Monday")',
-        'From' => 'DBTime',
-        'Till' => 'DBTime',
+        'From' => 'Time',
+        'Till' => 'Time',
         'Sort' => 'Int'
     ];
 
