@@ -2,12 +2,12 @@
 
 namespace Broarm\Silverstripe\OpeningHours;
 
-use GridFieldAddNewInlineButton;
-use GridFieldConfig;
-use GridFieldEditableColumns;
-use GridFieldTitleHeader;
-use GridFieldToolbarHeader;
-use HasManyList;
+use Symbiote\GridFieldExtensions\GridFieldAddNewInlineButton;
+use SilverStripe\Forms\GridField\GridFieldConfig;
+use Symbiote\GridFieldExtensions\GridFieldEditableColumns;
+use Symbiote\GridFieldExtensions\GridFieldTitleHeader;
+use SilverStripe\Forms\GridField\GridFieldToolbarHeader;
+use SilverStripe\ORM\HasManyList;
 
 /**
  * Class GridFieldConfig_OpeningHours
