@@ -60,11 +60,11 @@ class OpeningHour extends DataObject
     public function getCMSFields()
     {
         $fields = FieldList::create(new TabSet('Root', new Tab('Main')));
-        $fields->addFieldsToTab('Root.Main', array(
-            ReadonlyField::create('Day', _t('OpeningHour.Day', 'Day'), $this->Day),
-            TimeField::create('From', _t('OpeningHour.From', 'From')),
-            TimeField::create('Till', _t('OpeningHour.Till', 'Till'))
-        ));
+        $fields->addFieldsToTab('Root.Main', [
+            ReadonlyField::create('Day', _t('OpeningHours.DAY', 'Day'), $this->Day),
+            TimeField::create('From', _t('OpeningHours.FROM', 'From')),
+            TimeField::create('Till', _t('OpeningHours.TILL', 'Till'))
+        ]);
 
         $this->extend('updateCMSFields', $fields);
         return $fields;

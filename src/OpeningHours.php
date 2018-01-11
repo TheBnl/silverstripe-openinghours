@@ -20,7 +20,7 @@ use SilverStripe\Forms\LiteralField;
 class OpeningHours extends DataExtension
 {
     private static $has_many = array(
-        'OpeningHours' => 'Broarm\Silverstripe\OpeningHours\OpeningHour'
+        'OpeningHours' => OpeningHour::class
     );
 
     public function updateCMSFields(FieldList $fields)
@@ -33,7 +33,7 @@ class OpeningHours extends DataExtension
                 "<p class='message notice'>The object must be saved before opening hours can be added</p>");
         }
 
-        $fields->addFieldsToTab('Root.OpeningHours', array($openingHours));
+        $fields->addFieldToTab('Root.OpeningHours', $openingHours);
         return $fields;
     }
 
