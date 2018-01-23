@@ -219,7 +219,7 @@ class OpeningHour extends DataObject
      */
     private static function after_midnight($time)
     {
-        return $time < self::config()->get('midnight_threshold') ? ($time + 24) : $time;
+        return $time < self::config()->get('midnight_threshold') ? ((int)$time + 24) : $time;
     }
 
     public function canView($member = null)
