@@ -221,7 +221,7 @@ class OpeningHour extends DataObject
      */
     private static function after_midnight($time)
     {
-        return $time < self::MIDNIGHT_THRESHOLD ? ($time + 24) : $time;
+        return (int)$time < self::MIDNIGHT_THRESHOLD ? ((int)$time + 24) : $time;
     }
 
 
