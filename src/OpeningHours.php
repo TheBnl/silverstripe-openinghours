@@ -37,14 +37,13 @@ class OpeningHours extends DataExtension
         return $fields;
     }
 
-    public function onAfterWrite()
+    public function onBeforeWrite()
     {
-        if ($this->owner->OpeningHours()->count() === 0) {
+        parent::onBeforeWrite();
+        if ($this->owner->exists() && !$this->owner->OpeningHours()->exists()) {
             $this->createOpeningHours();
         }
-        parent::onAfterWrite();
     }
-
 
     /**
      * Set up the opening hours for each day of the week
