@@ -9,6 +9,7 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TimeField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBTime;
+use SilverStripe\ORM\FieldType\DBDate;
 
 /**
  * Class OpeningHour
