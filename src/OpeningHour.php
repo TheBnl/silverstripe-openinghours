@@ -56,8 +56,6 @@ class OpeningHour extends DataObject
         'Till' => 'Till'
     ];
 
-    protected $concatenatedDays;
-
     public function getCMSFields()
     {
         $fields = FieldList::create(new TabSet('Root', new Tab('Main')));
@@ -71,7 +69,6 @@ class OpeningHour extends DataObject
         return $fields;
     }
 
-
     /**
      * Set the title and sorting value to the day of the week
      */
@@ -82,7 +79,6 @@ class OpeningHour extends DataObject
         parent::onBeforeWrite();
     }
 
-
     /**
      * Return the sorting value by the chosen day pf the week
      *
@@ -92,172 +88,5 @@ class OpeningHour extends DataObject
     {
         $day = $this->Day;
         return date('N', strtotime($day));
-    }
-
-
-    /**
-     * Return the short localized day
-     *
-     * @return string
-     */
-    public function getShortDay()
-    {
-        $date = new DBDate();
-        $date->setValue(strtotime($this->Day));
-        return ucfirst($date->Format('eee'));
-    }
-
-
-    /**
-     * Return the full localized day
-     *
-     * @return string
-     */
-    public function getFullDay()
-    {
-        $date = new DBDate();
-        $date->setValue(strtotime($this->Day));
-        return ucfirst($date->Format('eeee'));
-    }
-
-
-    /**
-     * Return the days store as a concatenated day range or as the short day
-     *
-     * @return string
-     */
-    public function getConcatenatedDays()
-    {
-        if (isset($this->concatenatedDays)) {
-            return self::concat_days(explode(', ', $this->concatenatedDays));
-        } else {
-            return $this->getShortDay();
-        }
-    }
-
-
-    /**
-     * Add a day to the concat days list
-     *
-     * @param $day
-     */
-    public function addDay($day)
-    {
-        if (!isset($this->concatenatedDays)) {
-            $this->concatenatedDays = $this->getShortDay();
-        }
-        $this->concatenatedDays .= ", $day";
-    }
-
-
-    /**
-     * Concat the days to a range
-     *
-     * @param array $days
-     *
-     * @return null|string
-     */
-    private static function concat_days(array $days = [])
-    {
-        if (count($days) > self::config()->get('days_as_range')) {
-            $last = end($days);
-            $rangeDelimiter = _t('OpeningHours.RANGE_DELIMITER', '–');
-            return "{$days[0]} $rangeDelimiter {$last}";
-        } else {
-            return implode(', ', $days);
-        }
-    }
-
-
-    /**
-     * Check if the opening hours fall between the given threshold
-     *
-     * @return bool
-     */
-    public function IsOpenNow()
-    {
-        if (!$this->IsClosed()) {
-            $from = $this->From;
-            $till = self::after_midnight($this->Till);
-            $now = self::after_midnight(date('G:i:s', time()));
-            return (bool)($now < $till) && ($now > $from);
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Returns if the shop is open on the current day
-     *
-     * @return bool
-     */
-    public function IsClosed()
-    {
-        return (bool)($this->From === $this->Till);
-    }
-
-
-    /**
-     * Get the opening hours for the current day of the week
-     *
-     * @return OpeningHour|DataObject|null
-     */
-    public static function get_today()
-    {
-        if ($today = self::get()->find('Day', date('l', time()))) {
-            return $today;
-        } else {
-            return null;
-        }
-    }
-
-
-    /**
-     * Make after midnight calculations possible by adding the after midnight hours to a full day
-     *
-     * @param $time
-     *
-     * @return mixed
-     */
-    private static function after_midnight($time)
-    {
-        return $time < self::config()->get('midnight_threshold') ? ((int)$time + 24) : $time;
-    }
-
-    public function canView($member = null)
-    {
-        if ($parent = $this->Parent()) {
-            return $parent->canView($member);
-        }
-
-        return parent::canView($member);
-    }
-
-    public function canEdit($member = null)
-    {
-        if ($parent = $this->Parent()) {
-            return $parent->canEdit($member);
-        }
-
-        return parent::canEdit($member);
-    }
-
-    public function canDelete($member = null)
-    {
-        if ($parent = $this->Parent()) {
-            return $parent->canDelete($member);
-        }
-
-        return parent::canDelete($member);
-    }
-
-    public function canCreate($member = null, $context = array())
-    {
-        if ($parent = $this->Parent()) {
-            return $parent->canCreate($member, $context);
-        }
-
-        return parent::canCreate($member, $context);
     }
 }

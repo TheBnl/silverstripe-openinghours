@@ -2,6 +2,10 @@
 
 namespace Broarm\OpeningHours;
 
+use DateTime;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\ORM\FieldType\DBDate;
+use SilverStripe\ORM\FieldType\DBTime;
 use SilverStripe\ORM\HasManyList;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataExtension;
@@ -9,6 +13,8 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\ViewableData;
 
 /**
  * Class OpeningHours
@@ -19,6 +25,17 @@ use SilverStripe\Forms\LiteralField;
  */
 class OpeningHours extends DataExtension
 {
+    use Configurable;
+
+    private static $short_day_format = 'ccc';
+
+    private static $long_day_format = 'cccc';
+
+    /**
+     * @var \Spatie\OpeningHours\OpeningHours
+     */
+    protected $_openinghours;
+
     private static $has_many = array(
         'OpeningHours' => OpeningHour::class
     );
@@ -58,6 +75,25 @@ class OpeningHours extends DataExtension
         }
     }
 
+    /**
+     * Get a queryable opening hours object
+     * TODO: add exeprions and handle empty times
+     * @return \Spatie\OpeningHours\OpeningHours
+     */
+    public function getOpeningHoursQuery()
+    {
+        if (isset($this->owner->_openinghours)) {
+            return $this->owner->_openinghours;
+        } else {
+            $hours = [];
+            array_map(function (OpeningHour $day) use (&$hours) {
+                $from = $day->dbObject('From');
+                $till = $day->dbObject('Till');
+                $hours[$day->Day] = ["{$from->Format('HH:mm')}-{$till->Format('HH:mm')}"];
+            }, $this->owner->OpeningHours()->toArray());
+            return $this->owner->_openinghours = \Spatie\OpeningHours\OpeningHours::create($hours);
+        }
+    }
 
     /**
      * Get the opening hours
@@ -66,9 +102,18 @@ class OpeningHours extends DataExtension
      */
     public function getOpeningHoursToday()
     {
-        return OpeningHour::get_today();
-    }
+        $now = new DateTime('now');
+        $openinghours = $this->owner->getOpeningHoursQuery();
+        $range = $openinghours->currentOpenRange($now);
 
+        $out = ViewableData::create();
+        if ($range) {
+            $out->From = DBTime::create()->setValue($range->start());
+            $out->Till = DBTime::create()->setValue($range->end());
+        }
+        $out->Closed = $openinghours->isClosed();
+        return $out;
+    }
 
     /**
      * Get a summarized version of the set opening hours
@@ -77,36 +122,27 @@ class OpeningHours extends DataExtension
      */
     public function getOpeningHoursSummarized()
     {
-        $hours = $this->owner->OpeningHours()->getIterator();
-        $hoursOut = new ArrayList();
-        $current = null;
-        $prev = null;
+        $openinghours = $this->owner->getOpeningHoursQuery();
+        $concatnatedDays = $openinghours->concatnatedDays();
+        $shortFormat = self::config()->get('short_day_format');
+        $longFormat = self::config()->get('long_day_format');
 
-        while ($hours->valid()) {
-            $current = $hours->current();
-            if ($prev && self::same_time($current, $prev)) {
-                $hoursOut->last()->addDay($current->getShortDay());
-            } else {
-                $hoursOut->add($current);
-            }
-            $prev = $current;
-            $hours->next();
+        $out = ArrayList::create();
+        foreach ($concatnatedDays as $concatnatedDay) {
+            $dayFormat = count($concatnatedDay['days']) > 1 ? $shortFormat : $longFormat;
+            $days = array_map(function ($day) use ($dayFormat) {
+                return DBDate::create()->setValue(strtotime($day))->Format($dayFormat);
+            }, $concatnatedDay['days']);
+
+            $openingHours = $concatnatedDay['opening_hours'];
+            $range = $openingHours->offsetGet(0);
+            $out->add(new ArrayData([
+                'Days' => implode(', ', $days),
+                'From' => DBTime::create()->setValue($range->start()),
+                'Till' => DBTime::create()->setValue($range->end()),
+            ]));
         }
 
-        return $hoursOut;
-    }
-
-
-    /**
-     * Check if the time entries are the same
-     *
-     * @param OpeningHour $a
-     * @param OpeningHour $b
-     * @return bool
-     */
-    private static function same_time(OpeningHour $a, OpeningHour $b)
-    {
-        return $a->Till === $b->Till
-            && $a->From === $b->From;
+        return $out;
     }
 }
