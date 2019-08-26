@@ -18,7 +18,7 @@ class GridFieldConfig_OpeningHours extends GridFieldConfig
 {
 
     /**
-     * GridFieldConfig_EditableNoDetail constructor.
+     * GridFieldConfig_OpeningHours constructor.
      *
      * @param HasManyList $object
      * @param string $sortField

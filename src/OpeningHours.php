@@ -22,6 +22,7 @@ use SilverStripe\View\ViewableData;
  *
  * @property OpeningHours|DataObject owner
  * @method HasManyList OpeningHours
+ * @method HasManyList OpeningHourExceptions
  */
 class OpeningHours extends DataExtension
 {
@@ -37,20 +38,33 @@ class OpeningHours extends DataExtension
     protected $_openinghours;
 
     private static $has_many = array(
-        'OpeningHours' => OpeningHour::class
+        'OpeningHours' => OpeningHour::class,
+        'OpeningHourExceptions' => OpeningHourException::class
     );
 
     public function updateCMSFields(FieldList $fields)
     {
         if ($this->owner->exists()) {
-            $config = new GridFieldConfig_OpeningHours($this->owner->OpeningHours());
-            $openingHours = new GridField('OpeningHours', 'OpeningHours', $this->owner->OpeningHours(), $config);
+            $config = GridFieldConfig_OpeningHours::create($this->owner->OpeningHours());
+            $openingHours = GridField::create(
+                'OpeningHours',
+                _t(__CLASS__ . '.OpeningHours', 'Opening hours'),
+                $this->owner->OpeningHours(),
+                $config
+            );
         } else {
-            $openingHours = new LiteralField('Notice',
+            $openingHours = LiteralField::create('Notice',
                 "<p class='message notice'>The object must be saved before opening hours can be added</p>");
         }
 
         $fields->addFieldToTab('Root.OpeningHours', $openingHours);
+        $fields->addFieldToTab('Root.OpeningHourExceptions', GridField::create(
+            'OpeningHourExceptions',
+            _t(__CLASS__ . '.Exceptions', 'Exceptions'),
+            $this->owner->OpeningHourExceptions(),
+            GridFieldConfig_OpeningHoursException::create()
+        ));
+
         return $fields;
     }
 
@@ -77,7 +91,6 @@ class OpeningHours extends DataExtension
 
     /**
      * Get a queryable opening hours object
-     * TODO: add exeprions and handle empty times
      * @return \Spatie\OpeningHours\OpeningHours
      */
     public function getOpeningHoursQuery()
@@ -91,6 +104,20 @@ class OpeningHours extends DataExtension
                 $till = $day->dbObject('Till');
                 $hours[$day->Day] = ["{$from->Format('HH:mm')}-{$till->Format('HH:mm')}"];
             }, $this->owner->OpeningHours()->toArray());
+
+            if (($exceptions = $this->owner->OpeningHourExceptions()) && $exceptions->exists()) {
+                array_map(function (OpeningHourException $exception) use (&$hours) {
+                    $from = $exception->dbObject('From');
+                    $till = $exception->dbObject('Till');
+                    foreach ($exception->getRange() as $key => $value) {
+                        $hours['exceptions'][$value->format('Y-m-d')] = [
+                            'hours' => ["{$from->Format('HH:mm')}-{$till->Format('HH:mm')}"],
+                            'data'  => $exception->Reason
+                        ];
+                    }
+                }, $exceptions->toArray());
+            }
+
             return $this->owner->_openinghours = \Spatie\OpeningHours\OpeningHours::create($hours);
         }
     }
@@ -105,7 +132,7 @@ class OpeningHours extends DataExtension
         $now = new DateTime('now');
         $openinghours = $this->owner->getOpeningHoursQuery();
         $range = $openinghours->currentOpenRange($now);
-
+        
         $out = ViewableData::create();
         if ($range) {
             $out->From = DBTime::create()->setValue($range->start());
@@ -117,6 +144,7 @@ class OpeningHours extends DataExtension
 
     /**
      * Get a summarized version of the set opening hours
+     * todo: check exceptions on summarized list
      *
      * @return ArrayList
      */

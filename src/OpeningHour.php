@@ -80,6 +80,17 @@ class OpeningHour extends DataObject
     }
 
     /**
+     * Return the full localized day
+     *
+     * @return string
+     */
+    public function getFullDay()
+    {
+        $dayTime = strtotime($this->Day);
+        return DBDate::create()->setValue($dayTime)->Format('cccc');
+    }
+
+    /**
      * Return the sorting value by the chosen day pf the week
      *
      * @return false|string
