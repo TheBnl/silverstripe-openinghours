@@ -151,18 +151,18 @@ class OpeningHours extends DataExtension
     public function getOpeningHoursSummarized()
     {
         $openinghours = $this->owner->getOpeningHoursQuery();
-        $concatnatedDays = $openinghours->concatnatedDays();
+        $consecutiveDays = $openinghours->forWeekConsecutiveDays();
         $shortFormat = self::config()->get('short_day_format');
         $longFormat = self::config()->get('long_day_format');
 
         $out = ArrayList::create();
-        foreach ($concatnatedDays as $concatnatedDay) {
-            $dayFormat = count($concatnatedDay['days']) > 1 ? $shortFormat : $longFormat;
+        foreach ($consecutiveDays as $consecutiveDay) {
+            $dayFormat = count($consecutiveDay['days']) > 1 ? $shortFormat : $longFormat;
             $days = array_map(function ($day) use ($dayFormat) {
                 return DBDate::create()->setValue(strtotime($day))->Format($dayFormat);
-            }, $concatnatedDay['days']);
+            }, $consecutiveDay['days']);
 
-            $openingHours = $concatnatedDay['opening_hours'];
+            $openingHours = $consecutiveDay['opening_hours'];
             $range = $openingHours->offsetGet(0);
             $out->add(new ArrayData([
                 'Days' => implode(', ', $days),
