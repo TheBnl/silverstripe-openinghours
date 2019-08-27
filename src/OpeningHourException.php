@@ -23,6 +23,8 @@ use SilverStripe\Forms\TimeField;
  */
 class OpeningHourException extends DataObject
 {
+    private static $table_name = 'OpeningHourException';
+
     private static $db = [
         'DateFrom' => 'Date',
         'DateTill' => 'Date',
