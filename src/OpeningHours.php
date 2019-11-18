@@ -168,7 +168,7 @@ class OpeningHours extends DataExtension
                 'Days' => implode(', ', $days),
                 'From' => DBTime::create()->setValue($range->start()),
                 'Till' => DBTime::create()->setValue($range->end()),
-                'IsClosed' => ($range->start() === $range->end())
+                'IsClosed' => ($range->start() == $range->end())
             ]));
         }
 
