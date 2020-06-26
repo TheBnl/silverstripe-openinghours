@@ -164,7 +164,7 @@ class OpeningHours extends DataExtension
                 return DBDate::create()->setValue(strtotime($day))->Format($dayFormat);
             }, $consecutiveDay['days']);
 
-            if (self::config()->get('summarized_range')) {
+            if (self::config()->get('summarized_range') && count($days) > 1) {
                 $days = _t(__CLASS__ . '.SummarizedRange', '{from} to {till}', null, [
                     'from' => $days[0],
                     'till' => end($days),
