@@ -32,6 +32,8 @@ class OpeningHours extends DataExtension
 
     private static $long_day_format = 'cccc';
 
+    private static $summarized_range = false;
+
     /**
      * @var \Spatie\OpeningHours\OpeningHours
      */
@@ -162,10 +164,19 @@ class OpeningHours extends DataExtension
                 return DBDate::create()->setValue(strtotime($day))->Format($dayFormat);
             }, $consecutiveDay['days']);
 
+            if (self::config()->get('summarized_range')) {
+                $days = _t(__CLASS__ . '.SummarizedRange', '{from} to {till}', null, [
+                    'from' => $days[0],
+                    'till' => end($days),
+                ]);
+            } else {
+                $days = implode(', ', $days);
+            }
+
             $openingHours = $consecutiveDay['opening_hours'];
             $range = $openingHours->offsetGet(0);
             $out->add(new ArrayData([
-                'Days' => implode(', ', $days),
+                'Days' => $days,
                 'From' => DBTime::create()->setValue($range->start()),
                 'Till' => DBTime::create()->setValue($range->end()),
                 'IsClosed' => ($range->start() == $range->end())

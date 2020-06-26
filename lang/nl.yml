@@ -8,3 +8,4 @@ nl:
     Day: 'Dag'
     FROM: 'Van'
     TILL: 'Tot'
+    SummarizedRange: '{from} t/m {till}'

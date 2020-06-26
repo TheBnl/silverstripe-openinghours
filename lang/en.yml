@@ -8,3 +8,4 @@ en:
     Day: 'Day'
     FROM: 'From'
     TILL: 'Till'
+    SummarizedRange: '{from} to {till}'
