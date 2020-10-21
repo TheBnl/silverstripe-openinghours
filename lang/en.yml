@@ -1,11 +1,12 @@
 en:
-  OpeningHours:
+  Broarm\OpeningHours\OpeningHours:
     OPEN: 'Open'
     CLOSED: 'Closed'
     OPEN_NOW: 'We’re open'
     CLOSED_NOW: 'We’re closed'
     RANGE_DELIMITER: '–'
-    Day: 'Day'
-    FROM: 'From'
-    TILL: 'Till'
     SummarizedRange: '{from} to {till}'
+  Broarm\OpeningHours\OpeningHour:
+    Day: 'Day'
+    From: 'From'
+    Till: 'Till'

@@ -1,11 +1,12 @@
 nl:
-  OpeningHours:
+  Broarm\OpeningHours\OpeningHours:
     OPEN: 'Open'
     CLOSED: 'Gesloten'
     OPEN_NOW: 'We zijn open'
     CLOSED_NOW: 'We zijn gesloten'
     RANGE_DELIMITER: 't/m'
-    Day: 'Dag'
-    FROM: 'Van'
-    TILL: 'Tot'
     SummarizedRange: '{from} t/m {till}'
+  Broarm\OpeningHours\OpeningHour:
+    Day: 'Dag'
+    From: 'Van'
+    Till: 'Tot'
