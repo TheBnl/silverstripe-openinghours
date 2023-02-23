@@ -15,6 +15,8 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\ViewableData;
+use Spatie\OpeningHours\OpeningHoursForDay;
+use Spatie\OpeningHours\Time;
 
 /**
  * Class OpeningHours
@@ -31,8 +33,6 @@ class OpeningHours extends DataExtension
     private static $short_day_format = 'ccc';
 
     private static $long_day_format = 'cccc';
-
-    private static $summarized_range = false;
 
     /**
      * @var \Spatie\OpeningHours\OpeningHours
@@ -133,7 +133,9 @@ class OpeningHours extends DataExtension
     {
         $now = new DateTime('now');
         $openinghours = $this->owner->getOpeningHoursQuery();
-        $range = $openinghours->currentOpenRange($now);
+        /** OpeningHoursForDay */
+        $today = $openinghours->forDate($now);
+        $range = $today->nextOpenRange(Time::fromDateTime($now));
         
         $out = ViewableData::create();
         if ($range) {
@@ -164,22 +166,14 @@ class OpeningHours extends DataExtension
                 return DBDate::create()->setValue(strtotime($day))->Format($dayFormat);
             }, $consecutiveDay['days']);
 
-            if (self::config()->get('summarized_range') && count($days) > 1) {
-                $days = _t(__CLASS__ . '.SummarizedRange', '{from} to {till}', null, [
-                    'from' => $days[0],
-                    'till' => end($days),
-                ]);
-            } else {
-                $days = implode(', ', $days);
-            }
-
-            $openingHours = $consecutiveDay['opening_hours'];
-            $range = $openingHours->offsetGet(0);
+            /** @var OpeningHoursForDay $openingHours */
+            $openingHoursDay = $consecutiveDay['opening_hours'];
+            $range = $openingHoursDay->offsetGet(0);
             $out->add(new ArrayData([
-                'Days' => $days,
+                'Days' => implode(', ', $days),
                 'From' => DBTime::create()->setValue($range->start()),
                 'Till' => DBTime::create()->setValue($range->end()),
-                'IsClosed' => ($range->start() == $range->end())
+                'Closed' => (boolean)($range->start() == $range->end()),
             ]));
         }
 
