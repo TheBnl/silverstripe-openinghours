@@ -11,8 +11,7 @@
     }
   ],
   "require": {
-    "silverstripe/framework": "~4.0",
-    "silverstripe/cms": "~4.0",
+    "silverstripe/framework": "^4 || ^5",
     "symbiote/silverstripe-gridfieldextensions": "*",
     "spatie/opening-hours": "^2.7.0"
   },
